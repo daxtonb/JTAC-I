@@ -1,12 +1,13 @@
-JTAC = {
+JTACI = {
     comms = {
         frequency = 251,
         modulation = 'AM'
     },
-    isImmortal = true
+    isImmortal = true,
+    aircraftSpawnDelay = 15
 }
 
-local debug = true
+local debug = false
 local objectiveZone
 local aircraftGroups = {}
 local unitWeaponsInFlight = {}
@@ -18,7 +19,6 @@ local microsoftVoices = {
 }
 
 local currentVoiceIndex = 1
-local aircraftCheckInFrequency = 15 -- unit = minuts
 local fuelEmptyBuffer = 0.1 -- Fuel capacity at which aircraft will RTB
 
 local aircraftMenu = missionCommands.addSubMenu('Aircraft')
@@ -130,7 +130,7 @@ local function textToSpeach(message, positionable)
         end
     end
 
-    debugLog(speechMessage)
+    debugLog(message)
 
     if positionable then
         local callsign = positionable:GetCallsign() or positionable:GetName()
@@ -145,9 +145,9 @@ local function textToSpeach(message, positionable)
         end
 
         local voice = unitVoices[callsign]
-        STTS.TextToSpeech(speechMessage, JTAC.comms.frequency, JTAC.comms.modulation, "1.0", "SRS", positionable:GetCoalition(), positionable:GetVec3(), 0, voice.gender, "en-US", voice.name)
+        STTS.TextToSpeech(speechMessage, JTACI.comms.frequency, JTACI.comms.modulation, "1.0", "SRS", positionable:GetCoalition(), positionable:GetVec3(), 0, voice.gender, "en-US", voice.name)
     else
-        STTS.TextToSpeech(speechMessage,JTAC.comms.frequency, JTAC.comms.modulation,"1.0","SRS")
+        STTS.TextToSpeech(speechMessage,JTACI.comms.frequency, JTACI.comms.modulation,"1.0","SRS")
     end
 end
 
@@ -599,7 +599,7 @@ local function initializeAircraft()
     end
 
     for _, aircraft in pairs(aircraftFound) do
-        local delay = aircraftCount * aircraftCheckInFrequency * 60
+        local delay = aircraftCount * JTACI.aircraftSpawnDelay * 60
         local spawnAircraft = SPAWN:New(aircraft:GetName())
         local unit = aircraft:GetUnits()[1]
         local altitude = unit:GetHeight()
@@ -740,6 +740,6 @@ end -- end initializeAircraft
 
 initializeAircraft()
 
-if JTAC and JTAC.isImmortal then
+if JTACI and JTACI.isImmortal then
     makeObserversImmortal()
 end
